@@ -18,9 +18,9 @@ jobs:
           npm install
           npm run all
 
-      # Update dist files if there is label dependencies or pull request' author is dependabot[bot] (id = 49699333)
+      # Update dist files if they are changed
       - name: Update dist files
-        if: github.event_name == 'pull_request' && (github.event.pull_request.user.id == 49699333 || contains(github.event.pull_request.labels.*.name, 'dependencies'))
+        if: github.event_name == 'push'
         run: |
           if [[ -z $(git status -s) ]]
           then
@@ -29,13 +29,10 @@ jobs:
             echo "Updating dist directory"
             git config --local user.name "dependabot[bot]"
             git config --local user.email "49699333+dependabot[bot]@users.noreply.github.com"
-            git add --update
-            git commit --message="Update dist files"
+            git add dist/**/*.js
+            git commit --message="update dist files"
             git push
           fi
-
-      # Fail the build if there is dirty change
-      - run: git diff --exit-code
 
   test: # make sure the action works on a clean machine without building
     needs: [ build ]
